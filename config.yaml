@@ -1,0 +1,4 @@
+nameserver: "8.8.8.8"
+reporter: "Sebastian Broekhoven"
+reporter_email: "user@domain.local"
+report_path: "reports"

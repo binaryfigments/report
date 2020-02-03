@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>{{.PageTitle}}</title>
+    <style>
+        body {
+            background-color: rgb(159, 228, 255);
+        }
+        table {
+            border-collapse: collapse;
+        }
+
+        table,
+        td,
+        th {
+            border: 1px solid black;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .cell-breakWord {
+            word-wrap: break-word;
+            max-width: 1px;
+        }
+
+        div.report {
+            width: 1000px;
+            font-family: 'Courier New', Courier, monospace;
+            margin-left: auto;
+            margin-right: auto;
+            padding: 10px 10px 10px 10px;
+            background-color: white;
+        }
+
+        pre {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: rgb(218, 218, 218);
+            border-color: rgb(99, 99, 99);
+        }
+
+        code {
+            white-space: pre-wrap;
+            font-family: monospace;
+            background-color: rgb(218, 218, 218);
+            ;
+            font-size: medium;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="report">
+        <h2>{{.PageTitle}}</h2>
+
+        <ul>
+            <li>Reporter: {{.Reporter}}</li>
+            <li>Time: {{.Time}}</li>
+        </ul>
+
+        <!-- Start Redirects -->
+        {{if .Redirects}}
+
+        {{if .Redirects.Error}}
+        <p style="background-color:#ff6347;"><strong>Error: </strong> {{.Redirects.ErrorMessage}}</p>
+        {{end}}
+
+        {{ if .Redirects.Redirects }}
+        <h3>Redirects</h3>
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Status Code</th>
+                    <th>URL</th>
+                    <th>Protocol</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Redirects.Redirects}}
+                <tr>
+                    <td>{{.Number}}</td>
+                    <td>{{.StatusCode}}</td>
+                    <td>{{.URL}}</td>
+                    <td>{{.Protocol}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{ else }}
+        Not detected<br>
+        {{ end }}
+
+        {{ if .Redirects.Hosts }}
+        <h3>Hosts</h3>
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Address</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Redirects.Hosts}}
+                <tr>
+                    <td>{{.Hostname}}</td>
+                    <td>
+                        {{ if .IPv4 }}{{range .IPv4 }}IPv4: {{.}}, <br>{{end}}{{ end }}
+                        {{ if .IPv6 }}{{range .IPv6 }}IPv6: {{.}}, <br>{{end}}{{ end }}
+                        {{ if .CNAME }}CNAME: {{.CNAME}}{{ end }}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{ else }}
+        Not detected<br>
+        {{ end }}
+
+        {{end}}
+        <!--  End Redirects  -->
+
+
+        <!-- EMAIL START -->
+        {{if .Email}}
+
+        <h2>E-mail on domain</h2>
+
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th style="width:20%">DNSSEC</th>
+                    <th style="width:20%">TLSA</th>
+                    <th style="width:20%">SPF</th>
+                    <th style="width:20%">DMARC</th>
+                    <th style="width:20%">DKIM</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>{{.Email.AuthenticatedData}}</td>
+                    <td>{{.Email.FoundTLSA}}</td>
+                    <td>{{.Email.FoundSPF}}</td>
+                    <td>{{.Email.FoundDMARC}}</td>
+                    <td>{{.Email.FoundDKIM}}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <h3>MX records</h3>
+
+        {{ if.Email.MX.Hosts}}
+
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Preference</th>
+                    <th>Host</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Email.MX.Hosts}}
+                <tr>
+                    <td>{{.Preference}}</td>
+                    <td>{{.Host}}</td>
+                </tr>
+                {{if .TLSA}}
+                <tr>
+                    <td style="width:20%">TLSA</td>
+                    <td class="cell-breakWord">{{.TLSA.Record}}<br>
+                        {{range .TLSA.TLSA}}
+                        Usage: {{.Usage}}<br>
+                        Selector: {{.Selector}}<br>
+                        MatchingType: {{.MatchingType}}<br>
+                        Certificate:
+                        <code>{{.Certificate}}</code><br><br>
+                        {{end}}
+                    </td>
+                </tr>
+                {{end}}
+                {{end}}
+
+            </tbody>
+        </table>
+
+        {{ else }}
+        No MX records<br>
+        {{ end }}
+
+        {{if .Email.SPF}}
+        <h3>SPF</h3>
+        <p>Record: {{.Email.SPF.Record}}</p>
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Values</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{range .Email.SPF.SPF}}
+                <tr>
+                    <td class="cell-breakWord">{{.}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{end}}
+
+        {{if .Email.DMARC}}
+        <h3>DMARC</h3>
+        <p>Record: {{.Email.DMARC.Record}}</p>
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Values</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {{range .Email.DMARC.DMARC}}
+                <tr>
+                    <td class="cell-breakWord">{{.}}</td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+        {{end}}
+
+        {{if .Email.DKIM}}
+        <h3>DKIM</h3>
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Record</th>
+                    <th>DomainKey</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                <tr>
+                    <td>{{.Email.DKIM.Record}}</td>
+                    <td>{{.Email.DKIM.DomainKey}}</td>
+                </tr>
+            </tbody>
+        </table>
+        {{end}}
+
+
+        {{end}}
+        <!-- EMAIL END -->
+
+        <!-- DNSSEC START -->
+        {{if .DNSSEC}}
+
+        <h2>DNSSEC on domain</h2>
+
+        {{ if .DNSSEC.DNSSEC }}
+        {{if .DNSSEC.Answer.Matching}}
+        <h3>DS</h3>
+        {{range .DNSSEC.Answer.Matching.DS}}
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <tbody>
+                <tr>
+                    <td style="width:20%">Algorithm</td>
+                    <td class="cell-breakWord">{{.Algorithm}}</td>
+                </tr>
+                <tr>
+                    <td style="width:20%">Digest</td>
+                    <td class="cell-breakWord">{{.Digest}}</td>
+                <tr>
+                    <td style="width:20%">DigestType</td>
+                    <td class="cell-breakWord">{{.DigestType}}</td>
+                <tr>
+                    <td style="width:20%">KeyTag</td>
+                    <td class="cell-breakWord">{{.KeyTag}}</td>
+            </tbody>
+        </table>
+        <br>
+        {{end}}
+
+        <h3>DNSKEY</h3>
+        {{range .DNSSEC.Answer.Matching.DNSKEY}}
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <tbody>
+                <tr>
+                    <td style="width:20%">Algorithm</td>
+                    <td class="cell-breakWord">{{.Algorithm}}</td>
+                </tr>
+                <tr>
+                    <td style="width:20%">Flags</td>
+                    <td class="cell-breakWord">{{.Flags}}</td>
+                <tr>
+                    <td style="width:20%">Protocol</td>
+                    <td class="cell-breakWord">{{.Protocol}}</td>
+                <tr>
+                    <td style="width:20%">PublicKey</td>
+                    <td class="cell-breakWord">{{.PublicKey}}</td>
+            </tbody>
+        </table>
+        <br>
+        {{end}}
+        {{ end }}
+        {{ else }}
+        DNSSEC enabled: {{.DNSSEC.DNSSEC}}<br>
+        {{ end }}
+
+        {{end}}
+        <!-- DNSSEC END -->
+
+        {{if .CAA}}
+
+        <h2>CAA records on domain</h2>
+
+        DNSSEC: {{.CAA.DNSSEC}}<br>
+        Blocking: {{.CAA.Blocking}}<br>
+        <br>
+
+        {{range .CAA.Hosts}}
+        DNS Authenticated Data: {{.AuthenticatedData}}<br>
+        DNS Response Code: {{.ResponseCode}}<br>
+        {{range .CAArecords}}
+        <li>{{.Flag}} {{.Tag}} {{.Value}}</li>
+        {{end}}
+        {{end}}
+
+        {{range .CAA.Issue}}
+        <li>{{.}}</li>
+        {{end}}
+
+        {{range .CAA.IssueWild}}
+        <li>{{.}}</li>
+        {{end}}
+
+        {{range .CAA.Controls}}
+        <li>{{.Message}} (Blocking: {{.Blocking}})</li>
+        {{end}}
+
+        {{end}}
+
+<!-- HRADERS START -->
+
+{{if .Headers}}
+<h2>Response Headers</h2>
+    {{if .Headers.Error}}
+        <p style="background-color:#ff6347;"><strong>Error: </strong> {{.Headers.ErrorMessage}}</p>
+    {{else}}
+        <ul>
+            <li>Redirects Followd: {{.Headers.FollowRedirects}}</li>
+            <li>Status: {{.Headers.Status}}</li>
+            <li>Protocol: {{.Headers.Protocol}}</li>
+        </ul>
+
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Header</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range $key, $value := .Headers.Headers }}
+                <tr>
+                    <td>{{ $key }}</td>
+                    <td>{{ $value }}</td>
+                </tr>
+                {{ end }}
+            </tbody>
+        </table>
+
+    {{end}}
+{{end}}
+<!-- HRADERS END -->
+
+        <!-- CRTSH START -->
+        {{if .CRTSH}}
+
+        <h2>Certificates for domain</h2>
+
+        {{ if .CRTSH.Certificates }}
+
+        <table class="pure-table pure-table-horizontal" width="100%">
+            <thead>
+                <tr>
+                    <th>Names</th>
+                    <th>Not After</th>
+                    <th>Issuer</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .CRTSH.Certificates}}
+                <tr>
+                    <td>{{range .NameValue}}
+                        {{.}}<br>{{end}}</td>
+                    <td>{{.NotAfter.Format "2006-01-02"}}</td>
+                    <td>{{.IssuerName}}</td>
+                </tr>
+
+                {{end}}
+            </tbody>
+        </table>
+        <br>
+
+        {{ else }}
+        Not found or error.<br>
+        {{ end }}
+
+        {{end}}
+        <!-- CRTSH END -->
+
+    </div>
+</body>
+
+</html>
