@@ -5,7 +5,7 @@
     <title>{{.PageTitle}}</title>
     <style>
         body {
-            background-color: rgb(159, 228, 255);
+            background-color: #7e8aa3;
         }
         table {
             border-collapse: collapse;
@@ -401,10 +401,15 @@
                 <tr>
                     <td>{{range .NameValue}}
                         {{.}}<br>{{end}}</td>
+                    {{if .Expired}}
+                    <td bgcolor="#F5A9A9">{{.NotAfter.Format "2006-01-02"}}</td>
+                    {{else}}{{if .Replace}}
+                    <td bgcolor="#fff5c2">{{.NotAfter.Format "2006-01-02"}}</td>
+                    {{else}}
                     <td>{{.NotAfter.Format "2006-01-02"}}</td>
+                    {{end}}{{end}}
                     <td>{{.IssuerName}}</td>
                 </tr>
-
                 {{end}}
             </tbody>
         </table>
