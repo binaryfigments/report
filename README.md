@@ -1,6 +1,8 @@
 # report
 Get reports about things. For personal use end experimenting.
 
+# Very ALPHA stage!
+
 Running the program:
 
 ```
