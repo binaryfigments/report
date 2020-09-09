@@ -71,7 +71,10 @@ var domainCmd = &cobra.Command{
 		email := emaildefense.Get(domain, viper.GetString("nameserver"), false)
 		dnssec := dnssec.Get(domain, viper.GetString("nameserver"))
 		caa := pkicaa.Get(domain, viper.GetString("nameserver"), true)
-		crts := crtsh.Get(domain, 5)
+
+		timeout := time.Duration(2) * time.Second
+		crts := crtsh.Get(domain, timeout, 30)
+
 		headers := httpheaders.Get("http://"+domain, true)
 
 		data := domainReportData{
