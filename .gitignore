@@ -15,3 +15,4 @@
 # vendor/
 reports/
 report
+.DS_Store
